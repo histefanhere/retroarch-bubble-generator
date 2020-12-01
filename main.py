@@ -1,29 +1,16 @@
 import yaml, os, subprocess, shlex, shutil
 from PIL import Image
 
-# TODO: Choose ID or name
-# TODO: Choose ID for systems
-# TODO: Only show the systems in settings and images if there's a difference
+import utility as u
 
 # TODO: Use `shlex.quote` as much as I can, but it seems to be using single quotes instead of double quotes?
 
+# TODO: These should use the settings set in `settings.yaml`
 def get_core(core):
-    return f"app0:{core}.self"
+    return f"app0:{core}_libretro.self"
 
 def get_rom(system, filename):
     return f"ux0:ROMS/{system}/{filename}"
-
-
-
-# Utility wrapper functions for os.path
-def get_path(*paths):
-    return os.path.join(*paths)
-
-def is_folder(*paths):
-    return os.path.isdir(get_path(*paths))
-
-def is_file(*paths):
-    return not is_folder(*paths)
 
 # Read the settings
 with open('settings.yaml') as file:
@@ -34,63 +21,47 @@ with open('settings.yaml') as file:
 images_path = settings['paths']['images']
 
 systems_in_settings = settings['systems'].keys()
-systems_in_images = os.listdir(images_path)
-systems_in_images = list(x for x in systems_in_images if is_folder(images_path, x))
+systems_in_images = u.get_folders(images_path)
 
 # This is a variable we'll need MUCH later
-image_files = os.listdir(images_path)
-image_files = list(filter(lambda x: is_file(images_path, x), image_files))
+image_files = u.get_files(images_path)
 
 print(f"systems detected in settings: {', '.join(systems_in_settings)}")
 print(f"systems detected in images folder: {', '.join(systems_in_images)}")
-
+print(" ")
 systems = list(x for x in systems_in_settings if x in systems_in_images)
 
-
-print(f"\nsystems: {', '.join(systems)}")
-
-system = input("Choose one of the above systems: ")
-if system not in systems:
-    print("Not a valid choice!")
-    exit()
-
+system = u.choose(
+    systems,
+    title_message="Available systems",
+    input_message="Choose one of the above systems: "
+)
 
 system_name = settings['systems'][system]['name']
 system_core = settings['systems'][system]['core']
 system_format = settings['systems'][system]['format']
+# This is a variable we'll need MUCH later
+system_path = u.get_path(images_path, system)
 
-print(f"Chosen {system_name} ({system}) using core {system_core}")
-input("press enter to continue")
-
-
-system_path = get_path(images_path, system)
-
-system_files = os.listdir(system_path)
-system_files = list(filter(lambda x: is_file(system_path, x), system_files))
-
-games = os.listdir(system_path)
-games = list(filter(lambda x: is_folder(system_path, x), games))
+print(f"Chosen \"{system_name}\" ({system}) using core \"{system_core}\"")
+input("(press enter to continue)\n")
 
 
-print("\nGames to choose from: ")
-for i, game in enumerate(games):
-    print(f"{i} : {game}")
+system_files = u.get_files(system_path)
+games = u.get_folders(system_path)
 
-game_i = input("Choose one of the above games: ")
-try:
-    game_i = int(game_i)
-    if game_i not in range(len(games)):
-        raise TypeError
-except:
-    print("Not a valid choice!")
-    exit()
+game = u.choose(
+    games,
+    title_message="Available games",
+    input_message="Choose one of the above games: "
+)
 
-game = games[game_i]
+game_path = u.get_path(system_path, game)
+game_files = u.get_files(game_path)
 
-game_path = get_path(system_path, game)
+print(f"Chosen \"{game}\"")
+input("(press enter to continue)\n")
 
-game_files = os.listdir(game_path)
-game_files = list(filter(lambda x: is_file(game_path, x), game_files))
 
 # Now that we know what they want, lets see if we can find all the necessary files
 images = {
@@ -99,37 +70,33 @@ images = {
     "bg": None
 }
 
-# TODO: Maybe `icon.png` doesn't have to be unique?
-# (it probably does because otherwise how do we get the game name)
 if 'icon0.png' in game_files:
-    images['icon0'] = get_path(game_path, 'icon0.png')
+    images['icon0'] = u.get_path(game_path, 'icon0.png')
 else:
     # Since icon0 is per-game, there's no where else this image can be.
-    print('Sorry, that game folder doesn\'t contain an icon0.png!')
+    print('ERROR: Sorry, that game folder doesn\'t contain an icon0.png!')
     exit()
-
 
 if 'startup.png' in game_files:
-    images['startup'] = get_path(game_path, 'startup.png')
+    images['startup'] = u.get_path(game_path, 'startup.png')
 elif 'startup.png' in system_files:
-    images['startup'] = get_path(system_path, 'startup.png')
+    images['startup'] = u.get_path(system_path, 'startup.png')
 elif 'startup.png' in image_files:
-    images['startup'] = get_path(images_path, 'startup.png')
+    images['startup'] = u.get_path(images_path, 'startup.png')
 else:
     # Couldn't find startup ANYWHERE
-    print("Failed to find startup.png file")
+    print("ERROR: Failed to find startup.png file")
     exit()
 
-
 if 'bg.png' in game_files:
-    images['bg'] = get_path(game_path, 'bg.png')
+    images['bg'] = u.get_path(game_path, 'bg.png')
 elif 'bg.png' in system_files:
-    images['bg'] = get_path(system_path, 'bg.png')
+    images['bg'] = u.get_path(system_path, 'bg.png')
 elif 'bg.png' in image_files:
-    images['bg'] = get_path(images_path, 'bg.png')
+    images['bg'] = u.get_path(images_path, 'bg.png')
 else:
     # Couldn't find bg ANYWHERE
-    print("Failed to find bg.png file")
+    print("ERROR: Failed to find bg.png file")
     exit()
 
 
@@ -146,12 +113,12 @@ def make_correct_format(filepath, filename, size):
     new_image.save(filepath)
     
     # TODO: Get shlex to work here
-    compress_command = "pngquant --force --verbose 256 -o content/{} \"{}\"".format(
+    compress_command = "pngquant --force 256 -o content/{} \"{}\"".format(
         filename,
         filepath
     )
+    # compress_command += " --verbose"
 
-    print(compress_command)
     # TODO: Does this need to be a shell?
     subprocess.run(shlex.split(compress_command), shell=True)
 
@@ -159,6 +126,7 @@ def make_correct_format(filepath, filename, size):
     shutil.copyfile("content/{}".format(filename), filepath)
 
 # TODO: Put this in a list / object
+# TODO: This should be done much later so nothing is changed until the user confirms everything
 make_correct_format(images['icon0'], 'icon0.png', (128, 128))
 make_correct_format(images['startup'], 'startup.png', (280, 158))
 make_correct_format(images['bg'], 'bg.png', (840, 500))
@@ -173,20 +141,31 @@ with open('title_ids.yaml') as file:
     if title_ids is None:
         title_ids = {}
 
-print(title_ids)
+inv = {game: id for id, game in title_ids.items()}
+if game in inv:
+    print(f"Detected a previously title ID for this game: {inv[game]}")
+    choice = input("Do you wish to continue using this id for the game or create a new one? ('yes' for yes or anything else for no): ")
 
-# TODO: Error check this
-title_id = input("What title ID would you like for the game? (NOTE: only UPPERCASE letters or numbers): ")
+    if len(choice) >= 1 and choice[0] == 'y':
+        new_id = False
+        title_id = inv[game]
+    else:
+        new_id = True
+else:
+    print("No previously generated title ID was detected")
+    new_id = True
 
-if title_id in title_ids.keys():
-    collision = title_ids[title_id]
-    print(f"ERROR: This title ID already exists in title_ids.yaml for the game {collision}")
-    # TODO: This shouldn't exit. Rather, it should ask if we're sure we want to do this
-    # OR it should know that since the game names are the same, we're just updating
-    # exit()
+if new_id:
+    # TODO: Error check this
+    title_id = input("What title ID would you like for the game? (NOTE: only UPPERCASE letters or numbers): ")
+
+    if title_id in title_ids.keys():
+        collision = title_ids[title_id]
+        print(f"ERROR: This title ID already exists in title_ids.yaml for the game {collision}")
+        exit()
+
 
 title_ids[title_id] = game
-
 with open('title_ids.yaml', 'w') as file:
     yaml.dump(title_ids, file)
 
@@ -198,7 +177,7 @@ input("are you happy with what you've done till now? Cause we'll generate stuff 
 with open('content/core.txt', 'w+') as file:
     file.write(get_core(system_core))
 with open('content/rom.txt', 'w+') as file:
-    filename = system_format.replace('$filename', game)
+    filename = system_format.replace('$title', game)
     file.write(get_rom(system, filename))
 
 # TODO: Delete the core.txt and rom.txt files
@@ -207,12 +186,11 @@ mksfoex_command = "vita-mksfoex -s TITLE_ID={} \"{}\" content/param.sfo".format(
     title_id,
     game
 )
-print(mksfoex_command)
 subprocess.run(shlex.split(mksfoex_command))
 
-# TODO: If VPKS folder does not exist, create it
-
-input("asfasd")
+# We need to create the output VPKS folder if it doesn't already exist
+if 'VPKS' not in u.get_folders('.'):
+    os.mkdir('VPKS')
 
 # TODO: Remove `shlex.quote` here?
 pack_vpk_command = ("vita-pack-vpk -s content/param.sfo -b content/eboot.bin \"{}\"" + \
@@ -228,8 +206,6 @@ pack_vpk_command += " -a content/template.xml=sce_sys/livearea/contents/template
     " -a content/core.txt=core.txt" + \
     " -a content/rom.txt=rom.txt"    
 
-
-print(pack_vpk_command)
 subprocess.run(shlex.split(pack_vpk_command))
 
 # TODO: Print out that everything was successful and path to output VPK file
