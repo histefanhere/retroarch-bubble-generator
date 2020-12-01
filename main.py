@@ -42,7 +42,7 @@ system_format = settings['systems'][system]['format']
 system_path = u.get_path(images_path, system)
 
 print(f"Chosen \"{system_name}\" ({system}) using core \"{system_core}\"")
-input("(press enter to continue)\n")
+input("(press enter to continue or Ctrl+C to cancel)\n")
 
 
 #####################
@@ -62,19 +62,12 @@ game_path = u.get_path(system_path, game)
 game_files = u.get_files(game_path)
 
 print(f"Chosen \"{game}\"")
-input("(press enter to continue)\n")
+input("(press enter to continue or Ctrl+C to cancel)\n")
 
 
 #####################
 # PART 3: FIND IMAGES
 #####################
-
-# Now that we know the system and game they want to generate, we can formulate their exact paths on the vita
-# From the provided format strings in settings.yaml
-###### DEBUG These are later written to core.txt and rom.txt
-vita_core_path = settings['paths']['vita']['cores'].format(core=system_core)
-rom_filename = system_format.format(title=game)
-vita_rom_path = settings['paths']['vita']['roms'].format(system=system, filename=rom_filename)
 
 # Now that we know what they want, lets see if we can find all the necessary files
 images = {
@@ -113,39 +106,8 @@ else:
     exit()
 
 
-########################
-# PART 4: CONVERT IMAGES
-########################
-
-# We have the path of all 3 images in `images` - now we need to be SURE they're all the correct size
-# And the correct colour pallete
-def make_correct_format(filepath, filename, size):
-    image = Image.open(filepath)
-
-    new_image = image.resize(size)
-    new_image.save(filepath)
-    
-    # TODO: Get shlex to work here
-    compress_command = "pngquant --force 256 -o content/{} \"{}\"".format(
-        filename,
-        filepath
-    )
-    # compress_command += " --verbose"
-
-    # TODO: Does this need to be a shell?
-    subprocess.run(shlex.split(compress_command), shell=True)
-
-    # Replace the original file with the new smaller and compressed image
-    shutil.copyfile("content/{}".format(filename), filepath)
-
-# TODO: This should be done much later so nothing is changed until the user confirms everything
-make_correct_format(images['icon0'], 'icon0.png', (128, 128))
-make_correct_format(images['startup'], 'startup.png', (280, 158))
-make_correct_format(images['bg'], 'bg.png', (840, 500))
-
-
 #######################
-# PART 6: PICK TITLE ID
+# PART 4: PICK TITLE ID
 #######################
 
 # For the convience of the user, and for error prevention, we store the title ID they choose in a file
@@ -173,14 +135,26 @@ else:
     new_id = True
 
 if new_id:
-    # TODO: Error check this
-    title_id = input("What title ID would you like for the game? (NOTE: only UPPERCASE letters or numbers): ")
+    title_id = input("What title ID would you like for the game? (NOTE: only UPPERCASE letters or numbers, EXACTLY 9 characters long): ")
 
     if title_id in title_ids.keys():
         collision = title_ids[title_id]
         print(f"ERROR: This title ID already exists in title_ids.yaml for the game {collision}")
         exit()
 
+# Check if the final title_id is valid
+if len(title_id) != 9:
+    print("ERROR: The provided title ID is invalid! It has to be exactly 9 characters.")
+    exit()
+
+def check_char(char):
+    """ Given a single character from a title_id, this function checks if it's an uppercase letter or a number """
+    return (ord(char) in range(ord('A'), ord('Z')+1)) or (ord(char) in range(ord('0'), ord('9')+1))
+print(list(map(check_char, title_id)))
+valid_title_id = all(map(check_char, title_id))
+if not valid_title_id:
+    print("ERROR: The provided title ID is invalid! It can only contain UPPERCASE letters or numbers.")
+    exit()
 
 title_ids[title_id] = game
 with open('title_ids.yaml', 'w') as file:
@@ -188,17 +162,56 @@ with open('title_ids.yaml', 'w') as file:
 
 
 ######################
-# PART 7: CONFIRMATION
+# PART 5: CONFIRMATION
 ######################
 
-# TODO: Confirm everything the user has done till now
-# - all core and rom paths, etc
-# vita_core_path
-# vita_rom_path
-# title_id
-# VPKS/game.vpk
-# icon0, bg, and startup paths
-input("are you happy with what you've done till now? Cause we'll generate stuff now")
+vita_core_path = settings['paths']['vita']['cores'].format(core=system_core)
+rom_filename = system_format.format(title=game)
+vita_rom_path = settings['paths']['vita']['roms'].format(system=system, filename=rom_filename)
+
+print(" ")
+print("Here are all the final parameters:")
+
+print("vita_core_path = {}".format(vita_core_path))
+print("vita_rom_path  = {}".format(vita_rom_path))
+print("title_id       = {}".format(title_id))
+print("icon0          = {}".format(images['icon0']))
+print("startup        = {}".format(images['startup']))
+print("bg             = {}".format(images['bg']))
+print("output         = {}".format(f"VPKS/{game}.vpk"))
+
+print("Do you wish to proceed with generating the vpk file?")
+input("(press enter to continue or Ctrl+C to cancel)\n")
+
+
+########################
+# PART 6: CONVERT IMAGES
+########################
+
+# We have the path of all 3 images in `images` - now we need to be SURE they're all the correct size
+# And the correct colour pallete
+def make_correct_format(filepath, filename, size):
+    image = Image.open(filepath)
+
+    new_image = image.resize(size)
+    new_image.save(filepath)
+    
+    # TODO: Get shlex to work here
+    compress_command = "pngquant --force 256 -o content/{} \"{}\"".format(
+        filename,
+        filepath
+    )
+    # compress_command += " --verbose"
+
+    subprocess.run(shlex.split(compress_command))
+
+    # Replace the original file with the new smaller and compressed image
+    # For storage space sake
+    shutil.copyfile("content/{}".format(filename), filepath)
+
+make_correct_format(images['icon0'], 'icon0.png', (128, 128))
+make_correct_format(images['startup'], 'startup.png', (280, 158))
+make_correct_format(images['bg'], 'bg.png', (840, 500))
 
 
 ####################
@@ -221,20 +234,15 @@ subprocess.run(shlex.split(mksfoex_command))
 if 'VPKS' not in u.get_folders('.'):
     os.mkdir('VPKS')
 
-# TODO: Remove `shlex.quote` here?
-pack_vpk_command = ("vita-pack-vpk -s content/param.sfo -b content/eboot.bin \"{}\"" + \
-    " -a {}=sce_sys/icon0.png" + \
-    " -a {}=sce_sys/livearea/contents/startup.png" + \
-    " -a {}=sce_sys/livearea/contents/bg.png").format(
-        "VPKS/" + game + ".vpk",
-        shlex.quote('content/icon0.png'),
-        shlex.quote('content/startup.png'),
-        shlex.quote('content/bg.png')
-    )
-pack_vpk_command += " -a content/template.xml=sce_sys/livearea/contents/template.xml" + \
+pack_vpk_command = \
+    "vita-pack-vpk -s content/param.sfo -b content/eboot.bin \"VPKS/{}.vpk\"".format(game) + \
+    " -a content/icon0.png=sce_sys/icon0.png" + \
+    " -a content/startup.png=sce_sys/livearea/contents/startup.png" + \
+    " -a content/bg.png=sce_sys/livearea/contents/bg.png" + \
+    " -a content/template.xml=sce_sys/livearea/contents/template.xml" + \
     " -a content/core.txt=core.txt" + \
     " -a content/rom.txt=rom.txt"
 
 subprocess.run(shlex.split(pack_vpk_command))
 
-# TODO: Print out that everything was successful and path to output VPK file
+print("Successfully created VPKS/{}.vpk!".format(game))

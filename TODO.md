@@ -10,16 +10,17 @@
   - https://pngquant.org/
   - https://github.com/vitasdk/vita-toolchain
 
-- example settings.yaml file
-
-- section off the code into discrete parts
-
 - change "game" to "rom" in code
 
-- Provide basic startup.png and bg.png _somewhere_
+- SPECIFICALLY SAY that it should only be used with ROMS you own
+
+- custom `vpk` output path?
 
 # COMPLETED:
 - make all paths configurable in settings.yaml (and provide sane defaults)
+- example settings.yaml file
+- section off the code into discrete parts
+- Provide basic startup.png and bg.png _somewhere_
 
 # TRASHED:
-- Delete the core.txt and rom.txt files (all generation content is preserved in ./content/)
+- Delete the core.txt and rom.txt files _=>_ all generation content is preserved in ./content/

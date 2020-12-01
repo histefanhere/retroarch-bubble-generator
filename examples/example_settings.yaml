@@ -1,0 +1,18 @@
+# This is an example settings configuration file with all options correctly configured.
+# You might need to change `paths.vita` to better suit where your cores and/or ROMS are on your PS Vita system.
+# Read the `README.md` for more information.
+
+paths:
+  images: ..\Retroarch Bubble Images
+  vita:
+    cores: app0:{core}_libretro.self
+    roms: ux0:ROMS/{system}/{filename}
+systems:
+  GBA:
+    name: Gameboy Advance
+    core: vba_next
+    format: "{title}.gba"
+  NES:
+    name: Nintendo Entertainment System
+    core: quicknes
+    format: "{title}.nes"
