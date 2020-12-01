@@ -5,13 +5,6 @@ import utility as u
 
 # TODO: Use `shlex.quote` as much as I can, but it seems to be using single quotes instead of double quotes?
 
-# TODO: These should use the settings set in `settings.yaml`
-def get_core(core):
-    return f"app0:{core}_libretro.self"
-
-def get_rom(system, filename):
-    return f"ux0:ROMS/{system}/{filename}"
-
 # Read the settings
 with open('settings.yaml') as file:
     settings = yaml.safe_load(file)
@@ -19,6 +12,11 @@ with open('settings.yaml') as file:
 # The relative path to the folder with all the systems and their images from the python script
 # as configured in the settings
 images_path = settings['paths']['images']
+
+
+#######################
+# Part 1: PICK A SYSTEM
+#######################
 
 systems_in_settings = settings['systems'].keys()
 systems_in_images = u.get_folders(images_path)
@@ -47,6 +45,10 @@ print(f"Chosen \"{system_name}\" ({system}) using core \"{system_core}\"")
 input("(press enter to continue)\n")
 
 
+#####################
+# PART 2: PICK A GAME
+#####################
+
 system_files = u.get_files(system_path)
 games = u.get_folders(system_path)
 
@@ -62,6 +64,17 @@ game_files = u.get_files(game_path)
 print(f"Chosen \"{game}\"")
 input("(press enter to continue)\n")
 
+
+#####################
+# PART 3: FIND IMAGES
+#####################
+
+# Now that we know the system and game they want to generate, we can formulate their exact paths on the vita
+# From the provided format strings in settings.yaml
+###### DEBUG These are later written to core.txt and rom.txt
+vita_core_path = settings['paths']['vita']['cores'].format(core=system_core)
+rom_filename = system_format.format(title=game)
+vita_rom_path = settings['paths']['vita']['roms'].format(system=system, filename=rom_filename)
 
 # Now that we know what they want, lets see if we can find all the necessary files
 images = {
@@ -100,12 +113,12 @@ else:
     exit()
 
 
+########################
+# PART 4: CONVERT IMAGES
+########################
+
 # We have the path of all 3 images in `images` - now we need to be SURE they're all the correct size
 # And the correct colour pallete
-# icon0.png   - 128 x 128
-# startup.png - 280 x 158
-# bg.png      - 840 x 500
-
 def make_correct_format(filepath, filename, size):
     image = Image.open(filepath)
 
@@ -125,11 +138,15 @@ def make_correct_format(filepath, filename, size):
     # Replace the original file with the new smaller and compressed image
     shutil.copyfile("content/{}".format(filename), filepath)
 
-# TODO: Put this in a list / object
 # TODO: This should be done much later so nothing is changed until the user confirms everything
 make_correct_format(images['icon0'], 'icon0.png', (128, 128))
 make_correct_format(images['startup'], 'startup.png', (280, 158))
 make_correct_format(images['bg'], 'bg.png', (840, 500))
+
+
+#######################
+# PART 6: PICK TITLE ID
+#######################
 
 # For the convience of the user, and for error prevention, we store the title ID they choose in a file
 if not os.path.exists('title_ids.yaml'):
@@ -169,18 +186,30 @@ title_ids[title_id] = game
 with open('title_ids.yaml', 'w') as file:
     yaml.dump(title_ids, file)
 
+
+######################
+# PART 7: CONFIRMATION
+######################
+
 # TODO: Confirm everything the user has done till now
 # - all core and rom paths, etc
+# vita_core_path
+# vita_rom_path
+# title_id
+# VPKS/game.vpk
+# icon0, bg, and startup paths
 input("are you happy with what you've done till now? Cause we'll generate stuff now")
+
+
+####################
+# PART 7: MAKE FILES
+####################
 
 # Make the `core.txt` and `rom.txt` files necessary to boot
 with open('content/core.txt', 'w+') as file:
-    file.write(get_core(system_core))
+    file.write(vita_core_path)
 with open('content/rom.txt', 'w+') as file:
-    filename = system_format.replace('$title', game)
-    file.write(get_rom(system, filename))
-
-# TODO: Delete the core.txt and rom.txt files
+    file.write(vita_rom_path)
 
 mksfoex_command = "vita-mksfoex -s TITLE_ID={} \"{}\" content/param.sfo".format(
     title_id,
@@ -204,7 +233,7 @@ pack_vpk_command = ("vita-pack-vpk -s content/param.sfo -b content/eboot.bin \"{
     )
 pack_vpk_command += " -a content/template.xml=sce_sys/livearea/contents/template.xml" + \
     " -a content/core.txt=core.txt" + \
-    " -a content/rom.txt=rom.txt"    
+    " -a content/rom.txt=rom.txt"
 
 subprocess.run(shlex.split(pack_vpk_command))
 

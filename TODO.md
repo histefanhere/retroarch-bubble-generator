@@ -12,8 +12,6 @@
 
 - example settings.yaml file
 
-- make all paths configurable in settings.yaml (and provide sane defaults)
-
 - section off the code into discrete parts
 
 - change "game" to "rom" in code
@@ -21,5 +19,7 @@
 - Provide basic startup.png and bg.png _somewhere_
 
 # COMPLETED:
+- make all paths configurable in settings.yaml (and provide sane defaults)
 
 # TRASHED:
+- Delete the core.txt and rom.txt files (all generation content is preserved in ./content/)
