@@ -1,3 +1,26 @@
+# All the content that goes into the VPK
+content/bg.png
+content/icon0.png
+content/startup.png
+rom.txt
+core.txt
+param.sfo
+
+# Output VPK files
+VPKS/*
+
+# Local storage of title IDs
+title_ids.yaml
+
+# settings file
+settings.yaml
+
+
+
+
+
+# AUTO GENERATED STUFF courtesy of GitHub :)
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
