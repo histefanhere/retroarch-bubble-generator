@@ -148,7 +148,6 @@ if len(title_id) != 9:
 def check_char(char):
     """ Given a single character from a title_id, this function checks if it's an uppercase letter or a number """
     return (ord(char) in range(ord('A'), ord('Z')+1)) or (ord(char) in range(ord('0'), ord('9')+1))
-print(list(map(check_char, title_id)))
 valid_title_id = all(map(check_char, title_id))
 if not valid_title_id:
     print("ERROR: The provided title ID is invalid! It can only contain UPPERCASE letters or numbers.")

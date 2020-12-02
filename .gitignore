@@ -13,7 +13,7 @@ VPKS/*
 title_ids.yaml
 
 # settings file
-settings.yaml
+./settings.yaml
 
 
 

@@ -3,7 +3,7 @@
 # Read the `README.md` for more information.
 
 paths:
-  images: ..\Retroarch Bubble Images
+  images: ..\Bubble Images
   vita:
     cores: app0:{core}_libretro.self
     roms: ux0:ROMS/{system}/{filename}

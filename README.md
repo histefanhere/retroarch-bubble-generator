@@ -1,6 +1,6 @@
 # retroarch-bubble-generator
 
-Python script to (semi-automatically) generate PS Vita Livearea Bubbles for your Retroarch ROMS.
+Python script for (semi-automatically) generating custom PS Vita Livearea Bubbles for your Retroarch ROMS.
 
 # What is this?
 
@@ -12,13 +12,11 @@ This is where my script comes in, which in combination with _many_ other wonderf
 
 My script simply provides a tidy and simple wrapper for the amazing work already done by the community, which includes:
 
-- [u/W00lfwang's](https://www.reddit.com/user/W00lfwang/) original [Reddit post](https://www.reddit.com/r/vitahacks/comments/hjmn5k/ps_vita_daedalusx64_and_retroarch_custom_bubbles) describing the process for generating custom bubbles, and
+- [u/W00lfwang's](https://www.reddit.com/user/W00lfwang/) original [Reddit post](https://www.reddit.com/r/vitahacks/comments/hjmn5k/ps_vita_daedalusx64_and_retroarch_custom_bubbles) detailing the process for generating custom bubbles, and
 - [SayianPrinceVegeta](https://www.youtube.com/channel/UCjnHt3Hiz7DUzXGwCHY3EWA) for making a [YouTube video](https://youtu.be/umg2zbt-ydo) documenting the process. This was a big help, and praise the YouTube Algorithm lord for recommending me this in the first place and inspiring me to automate the process
 - The team behind [vita-toolchain](https://github.com/vitasdk/vita-toolchain) which is included in this repo and allows for the creating of the VPK files
 - Also included here is [pngquant](https://pngquant.org/) which compresses the images for use on the Vita
 - And credit to many other amazing open source projects which make this all possible in the first place like to [Rinnegatamante](https://github.com/Rinnegatamante) and to the [Retroarch](https://www.retroarch.com/) team
-
-https://forums.libretro.com/t/one-game-bubbles-for-retroarch-on-playstation-vita-50-120/15316
 
 # Prerequisites
 
@@ -26,7 +24,9 @@ The script runs using [python3](https://www.python.org/downloads/), and only req
 
 ```python3 -m pip install --upgrade Pillow```
 
-It goes without saying that you need a PS Vita with homebrew installed. [VitaShell](https://github.com/TheOfficialFloW/VitaShell/releases) is highly recommended for transfering and installing the vpk onto your Vita.
+It also goes without saying that you need a PS Vita with homebrew installed, [VitaShell](https://github.com/TheOfficialFloW/VitaShell/releases) is highly recommended for transfering and installing the vpk onto your Vita.
+
+ANY ROMS YOU HAVE SHOULD ONLY BE OF GAMES YOU ALREADY OWN AND BE OBTAINED VIA LEGAL MEANS
 
 There is one more requisite, which is that your ROMS on your PS Vita need to be sorted by system - so in a folder somewhere you should have subfolders for each system you have ROMS for, and in those folders are your ROM files. E.g:
 
@@ -42,12 +42,21 @@ ux0:
 
 (Keep this folder structure in mind, because we'll shortly be creating a very similar one for the ROM cover arts)
 
-# Usage
+# Setting Up
 
-For each ROM you want to create a custom Livearea Bubble for, you need 3 different cover arts - `icon0.png` which is the Livearea icon itself, `bg.png` which is the game background once it's openned and `startup.png` which is the clickable image that launches the game. since `icon0.png` is the most important and `bg.png` and `startup.png` are less important, I've provided some example images in `examples/` you can use for your own ROMS.
+### 1. Images
 
+For each ROM you want to create a custom Livearea Bubble for, you need 3 different cover arts:
+1. `icon0.png`, the Livearea icon itself
+2. `bg.png`, the game background once it's openned
+3. `startup.png`, the clickable image that launches the game
+since `icon0.png` is the most important and visible on the Livearea, while `bg.png` and `startup.png` are less important and seen less, I've provided some example images in `examples/` you can use for your own ROMS.
 
-All your cover art images should be orgainzed in a folder structure which is very similar to the one that stores your ROMS on your Vita, with folders for each system, a subfolder for each ROM and in these folders any cover art images. Note that if an image isn't found in a games folder it will search its parent system folder, then the parent images folder. This means that you can re-use certain images for multiple custom Liveara Bubbles without repeating the image. E.g:
+_A note about the size of the images: They will automatically get resized by the script, so the only thing you need to think about is their aspect ratios because they will get stretched a lot if they're not the correct ratio. `icon0.png` should be a square - for the rest, check `examples/`._
+
+All your cover art images should be orgainzed in a folder structure which is very similar to the one that stores your ROMS on your Vita - with folders for each system, a subfolder for each ROM and in these folders any cover art images.
+
+If an image isn't found in a games folder it will search its parent system folder, then the parent images folder. This means that you can re-use certain images for multiple custom Liveara Bubbles without repeating the image. E.g:
 
 ```
 .
@@ -70,9 +79,48 @@ All your cover art images should be orgainzed in a folder structure which is ver
     └── ...
 ```
 
-If we were to create a custom bubble for `Tetris` (apart of the `NES` system) then we'd use `Bubble Images/NES/Tetris/icon0.png` as it's icon, `Bubble Images/NES/startup.png` as it's startup image and `Bubble Images/bg.png` as it's background image. If we were to create a custom bubble for `Super Mario Bros` for instance, it would have it's own unique icon and startup in the `Super Mario Bros` folder, but it would use the same background as all the other ROMS.
+**NOTE: THE NAME OF THE GAME FOLDER SHOULD BE THE SAME AS THE TITLE OF THE ROM ON YOUR VITA. If these aren't the same, the script will tell the vpk to open a non-existent ROM file and throw an error.**
 
-Personally, all my ROMS have a unique `icon0.png` icon, every system has a unique `startup.png` and _all_ bubbles have the same `bg.png` but of course this is entirely customizable to your liking.
+If we were to create a custom bubble for `Tetris` (apart of the `NES` system) then the script would use:
+1. `Bubble Images/NES/Tetris/icon0.png` as it's icon
+2. `Bubble Images/NES/startup.png` as it's startup image, and
+3. `Bubble Images/bg.png` as it's background image.
+On the other hand, if we created a custom bubble for `Super Mario Bros` it would have it's own unique icon and startup from the `Super Mario Bros` folder, but it would use the same background as all the other ROMS.
 
+Personally, all my ROMS have a unique `icon0.png` icon, every system has a unique `startup.png` and all bubbles have the same `bg.png` but of course this is entirely customizable to your liking.
 
-MORE README TO COME
+### 2. Settings
+
+The script needs to be configured with a few more details before it can work correctly and automate a large process of the vpk file creation. An example `settings.yaml` file is provided in the `example/` folder and needs to be copied out of it to be detected. You need to go through each setting and configure it to your needs:
+
+`paths.images` - The path to the folder (relative to the script) containing all the systems, their games and the images that was described above.
+`paths.vita.cores` - This is the path to where all your Retroarch cores are located on the PS Vita, which are by default just in `app0`. Note that "{core}" gets replaced with the system's core by the script.
+`paths.vita.roms` - The path to where all your ROMS are on the PS Vita, sorted by system as previously described. "{system}" gets replaced with the chosen system and {filename} with the games filename.
+`systems` - Here lay all your systems configuration which includes a name, which core it uses (This gets substituted into `paths.vita.cores`) and the format of its ROMS (So if I was creating a bubble for `Tetris` and and the NES's format was `{title}.nes`, the ROM filename should be `Tetris.nes`).
+
+# Usage
+
+Run the script from the command line with the following command:
+
+```
+python3 main.py
+```
+
+The script will automatically detect which systems you've configured in the settings AND which systems there exists a folder for in your images folder, and will let you choose between one of these systems (You can type in either the name of the system or the number next to it).
+
+Once you've chosen a system the script reads all the game subfolders within that system and lets you choose one of these (again, you can either type in the name of the game or the number next to it).
+
+Now comes the hardest part, which is picking a Title ID. Each Livearea Bubble needs a unique title ID containing only uppercase letters and numbers (the script won't let you type in an invalid ID). For your convience, the script also stores all previously entered title ID's and knows if you've doubled up on the same ID. Here is an extract from vita-toolchain on picking a title ID:
+
+> The TITLE id can be anything but it is recommended that you use `XXXXYYYYY` where `XXXX` is an author specific identifier and `YYYYY` is a unique number identifying your homebrew. For example, molecularShell uses `MLCL00001`.
+
+At this point, believe it or not, you're done! Because the script can piece together the path to the core on your Vita and the path to the ROM on your Vita + other things, All thats left for you to do is review the final parameters that the script will present you with and press enter. At this point the script generates the output .vpk file for you to transfer to your Vita via FTP or USB via VitaShell (or any other prefered method) and install the vpk.
+
+# Troubleshooting
+
+_A big error comes up when I start the script, something to do with a ParserError in settings.yaml?_
+- This means that the syntax of your `settings.yaml` file is incorrect. Check that the lines are indented correctly (check the example for reference). Watch out that a string can't begin with a curly bracket, and the system ROM formats tend to begin with one (e.g. `"{title}.nes"`), so these need to be wrapped in double quotes.
+
+# Contributing
+
+I'm open to _all_ suggestions and/or critisism! I want this to be as easy of a script to use as possible
