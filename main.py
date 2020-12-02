@@ -3,8 +3,6 @@ from PIL import Image
 
 import utility as u
 
-# TODO: Use `shlex.quote` as much as I can, but it seems to be using single quotes instead of double quotes?
-
 # Read the settings
 with open('settings.yaml') as file:
     settings = yaml.safe_load(file)
@@ -196,7 +194,6 @@ def make_correct_format(filepath, filename, size):
     new_image = image.resize(size)
     new_image.save(filepath)
     
-    # TODO: Get shlex to work here
     compress_command = "pngquant --force 256 -o content/{} \"{}\"".format(
         filename,
         filepath
