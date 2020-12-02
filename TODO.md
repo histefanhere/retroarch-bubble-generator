@@ -12,6 +12,8 @@
  
 - say in readme where to find cores
 
+- error for missing file in README.troubleshooting
+
 # COMPLETED:
 - make all paths configurable in settings.yaml (and provide sane defaults)
 - example settings.yaml file

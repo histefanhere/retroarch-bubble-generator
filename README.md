@@ -128,6 +128,12 @@ At this point, believe it or not, you're done! Because the script can piece toge
 **Q:** _A big error comes up when I start the script, something to do with a ParserError in settings.yaml?_
 **A:** This means that the syntax of your `settings.yaml` file is incorrect. Check that the lines are indented correctly (check the example for reference). Watch out that a string can't begin with a curly bracket, and the system ROM formats tend to begin with one (e.g. `"{title}.nes"`), so these need to be wrapped in double quotes.
 
+**Q:** _The script isn't letting me select a system!_
+**A:** The system needs to exist as BOTH a folder in your images path and an entry in the `systems` data in `settings.yaml`. If one doesn't exist, it won't let you select that system.
+
+**Q:** _When I try to launch the bubble on my Vita it throws an error!_
+**A:** Check your core paths, your rom paths, and that your game images folder name in your system folder is the same as your ROM title. 
+
 # Contributing
 
 I'm open to _all_ suggestions and/or critisism! I want this to be as easy of a script to use as possible with minimal required configuration, hence the amount of information it gets from the folder structure alone.
