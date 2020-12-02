@@ -53,7 +53,7 @@ ux0:
 For each ROM you want to create a custom Livearea Bubble for, you need 3 different cover arts:
 1. `icon0.png`, the Livearea icon itself
 2. `bg.png`, the game background once it's openned
-3. `startup.png`, the clickable image that launches the game
+3. `startup.png`, the clickable image that launches the game  
 since `icon0.png` is the most important and visible on the Livearea, while `bg.png` and `startup.png` are less important and seen less, I've provided some example images in `examples/` you can use for your own ROMS.
 
 _A note about the size of the images: They will automatically get resized by the script, so the only thing you need to think about is their aspect ratios because they will get stretched a lot if they're not the correct ratio. `icon0.png` should be a square - for the rest, check `examples/`._
@@ -88,7 +88,7 @@ If an image isn't found in a games folder it will search its parent system folde
 If we were to create a custom bubble for `Tetris` (apart of the `NES` system) then the script would use:
 1. `Bubble Images/NES/Tetris/icon0.png` as it's icon
 2. `Bubble Images/NES/startup.png` as it's startup image, and
-3. `Bubble Images/bg.png` as it's background image.
+3. `Bubble Images/bg.png` as it's background image.  
 On the other hand, if we created a custom bubble for `Super Mario Bros` it would have it's own unique icon and startup from the `Super Mario Bros` folder, but it would use the same background as all the other ROMS.
 
 Personally, all my ROMS have a unique `icon0.png` icon, every system has a unique `startup.png` and all bubbles have the same `bg.png` but of course this is entirely customizable to your liking.
@@ -97,12 +97,9 @@ Personally, all my ROMS have a unique `icon0.png` icon, every system has a uniqu
 
 The script needs to be configured with a few more details before it can work correctly and automate a large process of the vpk file creation. An example `settings.yaml` file is provided in the `example/` folder and needs to be copied out of it to be detected. You need to go through each setting and configure it to your needs:
 
-`paths.images` - The path to the folder (relative to the script) containing all the systems, their games and the images that was described above.
-
-`paths.vita.cores` - This is the path to where all your Retroarch cores are located on the PS Vita, which are by default just in `app0`. Note that "{core}" gets replaced with the system's core by the script.
-
-`paths.vita.roms` - The path to where all your ROMS are on the PS Vita, sorted by system as previously described. "{system}" gets replaced with the chosen system and {filename} with the games filename.
-
+`paths.images` - The path to the folder (relative to the script) containing all the systems, their games and the images that was described above.  
+`paths.vita.cores` - This is the path to where all your Retroarch cores are located on the PS Vita, which are by default just in `app0`. Note that "{core}" gets replaced with the system's core by the script.  
+`paths.vita.roms` - The path to where all your ROMS are on the PS Vita, sorted by system as previously described. "{system}" gets replaced with the chosen system and {filename} with the games filename.  
 `systems` - Here lay all your systems configuration which includes a name, which core it uses (This gets substituted into `paths.vita.cores`) and the format of its ROMS (So if I was creating a bubble for `Tetris` and and the NES's format was `{title}.nes`, the ROM filename should be `Tetris.nes`).
 
 ## Usage
