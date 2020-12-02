@@ -94,8 +94,11 @@ Personally, all my ROMS have a unique `icon0.png` icon, every system has a uniqu
 The script needs to be configured with a few more details before it can work correctly and automate a large process of the vpk file creation. An example `settings.yaml` file is provided in the `example/` folder and needs to be copied out of it to be detected. You need to go through each setting and configure it to your needs:
 
 `paths.images` - The path to the folder (relative to the script) containing all the systems, their games and the images that was described above.
+
 `paths.vita.cores` - This is the path to where all your Retroarch cores are located on the PS Vita, which are by default just in `app0`. Note that "{core}" gets replaced with the system's core by the script.
+
 `paths.vita.roms` - The path to where all your ROMS are on the PS Vita, sorted by system as previously described. "{system}" gets replaced with the chosen system and {filename} with the games filename.
+
 `systems` - Here lay all your systems configuration which includes a name, which core it uses (This gets substituted into `paths.vita.cores`) and the format of its ROMS (So if I was creating a bubble for `Tetris` and and the NES's format was `{title}.nes`, the ROM filename should be `Tetris.nes`).
 
 # Usage
@@ -110,7 +113,7 @@ The script will automatically detect which systems you've configured in the sett
 
 Once you've chosen a system the script reads all the game subfolders within that system and lets you choose one of these (again, you can either type in the name of the game or the number next to it).
 
-Now comes the hardest part, which is picking a Title ID. Each Livearea Bubble needs a unique title ID containing only uppercase letters and numbers (the script won't let you type in an invalid ID). For your convience, the script also stores all previously entered title ID's and knows if you've doubled up on the same ID. Here is an extract from vita-toolchain on picking a title ID:
+Now comes the hardest part, which is picking a Title ID. Each Livearea Bubble needs a unique title ID containing only uppercase letters and numbers (the script won't let you type in an invalid ID). For your convience, the script also stores all previously entered title ID's and knows if you've doubled up on the same ID. Here is an extract from [vita-toolchain](https://github.com/vitasdk/vita-toolchain) on picking a title ID:
 
 > The TITLE id can be anything but it is recommended that you use `XXXXYYYYY` where `XXXX` is an author specific identifier and `YYYYY` is a unique number identifying your homebrew. For example, molecularShell uses `MLCL00001`.
 
@@ -118,9 +121,9 @@ At this point, believe it or not, you're done! Because the script can piece toge
 
 # Troubleshooting
 
-_A big error comes up when I start the script, something to do with a ParserError in settings.yaml?_
-- This means that the syntax of your `settings.yaml` file is incorrect. Check that the lines are indented correctly (check the example for reference). Watch out that a string can't begin with a curly bracket, and the system ROM formats tend to begin with one (e.g. `"{title}.nes"`), so these need to be wrapped in double quotes.
+**Q:** _A big error comes up when I start the script, something to do with a ParserError in settings.yaml?_
+**A:** This means that the syntax of your `settings.yaml` file is incorrect. Check that the lines are indented correctly (check the example for reference). Watch out that a string can't begin with a curly bracket, and the system ROM formats tend to begin with one (e.g. `"{title}.nes"`), so these need to be wrapped in double quotes.
 
 # Contributing
 
-I'm open to _all_ suggestions and/or critisism! I want this to be as easy of a script to use as possible
+I'm open to _all_ suggestions and/or critisism! I want this to be as easy of a script to use as possible with minimal required configuration, hence the amount of information it gets from the folder structure alone.
