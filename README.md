@@ -2,6 +2,10 @@
 
 Python script for (semi-automatically) generating custom PS Vita Livearea Bubbles for your Retroarch ROMS.
 
+![Screenshot](https://imgur.com/TaLZ5Et.png)
+
+In the above image are 8 differnet custom Bubbles from consoles including GameBoy, GameBoy Advance, NES and SNES. All launch via Retroarch and support its many features.
+
 # What is this?
 
 Instead of needing to go into Retroarch on your PS Vita then choosing which ROM you want to play from there, I find it asthetically nicer and practically quicker to be able to launch games and ROMS straight from my PS Vita Livearea - but still have all the power and wonderful features of Retroarch.

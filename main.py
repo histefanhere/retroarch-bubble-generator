@@ -79,6 +79,13 @@ if 'icon0.png' in game_files:
 else:
     # Since icon0 is per-game, there's no where else this image can be.
     print('ERROR: Sorry, that game folder doesn\'t contain an icon0.png!')
+    
+    # the `tbs=iar:s` query parameter here means that only square images are shown
+    search = 'https://google.com/images?q={game}+{system}+cover+art&tbs=iar:s'.format(
+        game="+".join(game.split()),
+        system="+".join(system.split())
+    )
+    print(f"Need inspiration? Try here: {search}")
     exit()
 
 if 'startup.png' in game_files:

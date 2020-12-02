@@ -1,7 +1,5 @@
 # TODO:
 
-- change "game" to "rom" in code
-
 - custom `vpk` output path?
 
 - use `shlex.quote` as much as I can, but it seems to be using single quotes instead of double quotes?
@@ -11,9 +9,9 @@
 - GUI (oh boy.)
 
 - CLI interface for picking a system and game without going through the interactive script?
-
-- Screenshot of the Livearea bubbles in README
  
+- say in readme where to find cores
+
 # COMPLETED:
 - make all paths configurable in settings.yaml (and provide sane defaults)
 - example settings.yaml file
@@ -28,7 +26,9 @@
   - https://github.com/vitasdk/vita-toolchain
 - SPECIFICALLY SAY that it should only be used with ROMS you own
 - provide example icon0.png
+- Screenshot of the Livearea bubbles in README
 
 # TRASHED:
 - Delete the core.txt and rom.txt files _=>_ all generation content is preserved in ./content/
 - auto open browser to google images if icon doesn't exist? _=>_ well this would just be annoying
+- change "game" to "rom" in code _=>_ it refers to the local paths, not the paths on the vita, I don't want these to be confused
