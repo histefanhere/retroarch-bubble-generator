@@ -6,13 +6,13 @@ Python script for (semi-automatically) generating custom PS Vita Livearea Bubble
 
 In the above image are 8 differnet custom Bubbles from consoles including GameBoy, GameBoy Advance, NES and SNES. All launch via Retroarch and support its many features.
 
-# What is this?
+## What is this?
 
 Instead of needing to go into Retroarch on your PS Vita then choosing which ROM you want to play from there, I find it asthetically nicer and practically quicker to be able to launch games and ROMS straight from my PS Vita Livearea - but still have all the power and wonderful features of Retroarch.
 
 This is where my script comes in, which in combination with _many_ other wonderful projects can take care of most of the hard work of generating these Liveare Bubbles for your ROMS.
 
-# Credits
+## Credits
 
 My script simply provides a tidy and simple wrapper for the amazing work already done by the community, which includes:
 
@@ -22,7 +22,7 @@ My script simply provides a tidy and simple wrapper for the amazing work already
 - Also included here is [pngquant](https://pngquant.org/) which compresses the images for use on the Vita
 - And credit to many other amazing open source projects which make this all possible in the first place like to [Rinnegatamante](https://github.com/Rinnegatamante) and to the [Retroarch](https://www.retroarch.com/) team
 
-# Prerequisites
+## Prerequisites
 
 The script runs using [python3](https://www.python.org/downloads/), and only requires `Pillow` to be installed - check the [Installation Documentation](https://pillow.readthedocs.io/en/stable/installation.html) or run the following on your command line:
 
@@ -46,7 +46,7 @@ ux0:
 
 (Keep this folder structure in mind, because we'll shortly be creating a very similar one for the ROM cover arts)
 
-# Setting Up
+## Setting Up
 
 ### 1. Images
 
@@ -105,7 +105,7 @@ The script needs to be configured with a few more details before it can work cor
 
 `systems` - Here lay all your systems configuration which includes a name, which core it uses (This gets substituted into `paths.vita.cores`) and the format of its ROMS (So if I was creating a bubble for `Tetris` and and the NES's format was `{title}.nes`, the ROM filename should be `Tetris.nes`).
 
-# Usage
+## Usage
 
 Run the script from the command line with the following command:
 
@@ -123,17 +123,17 @@ Now comes the hardest part, which is picking a Title ID. Each Livearea Bubble ne
 
 At this point, believe it or not, you're done! Because the script can piece together the path to the core on your Vita and the path to the ROM on your Vita + other things, All thats left for you to do is review the final parameters that the script will present you with and press enter. At this point the script generates the output .vpk file for you to transfer to your Vita via FTP or USB via VitaShell (or any other prefered method) and install the vpk.
 
-# Troubleshooting
+## Troubleshooting
 
-**Q:** _A big error comes up when I start the script, something to do with a ParserError in settings.yaml?_
+**Q:** _A big error comes up when I start the script, something to do with a ParserError in settings.yaml?_  
 **A:** This means that the syntax of your `settings.yaml` file is incorrect. Check that the lines are indented correctly (check the example for reference). Watch out that a string can't begin with a curly bracket, and the system ROM formats tend to begin with one (e.g. `"{title}.nes"`), so these need to be wrapped in double quotes.
 
-**Q:** _The script isn't letting me select a system!_
+**Q:** _The script isn't letting me select a system!_  
 **A:** The system needs to exist as BOTH a folder in your images path and an entry in the `systems` data in `settings.yaml`. If one doesn't exist, it won't let you select that system.
 
-**Q:** _When I try to launch the bubble on my Vita it throws an error!_
+**Q:** _When I try to launch the bubble on my Vita it throws an error!_  
 **A:** Check your core paths, your rom paths, and that your game images folder name in your system folder is the same as your ROM title. 
 
-# Contributing
+## Contributing
 
 I'm open to _all_ suggestions and/or critisism! I want this to be as easy of a script to use as possible with minimal required configuration, hence the amount of information it gets from the folder structure alone.
