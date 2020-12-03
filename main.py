@@ -200,9 +200,9 @@ def make_correct_format(filepath, filename, size):
     new_image = image.resize(size)
     new_image.save(filepath)
     
-    compress_command = "pngquant --force 256 -o content/{} \"{}\"".format(
-        filename,
-        filepath
+    compress_command = "pngquant --force 256 -o content/{} {}".format(
+        shlex.quote(filename),
+        shlex.quote(filepath)
     )
     # compress_command += " --verbose"
 
@@ -227,9 +227,9 @@ with open('content/core.txt', 'w+') as file:
 with open('content/rom.txt', 'w+') as file:
     file.write(vita_rom_path)
 
-mksfoex_command = "vita-mksfoex -s TITLE_ID={} \"{}\" content/param.sfo".format(
-    title_id,
-    game
+mksfoex_command = "vita-mksfoex -s TITLE_ID={} {} content/param.sfo".format(
+    shlex.quote(title_id),
+    shlex.quote(game)
 )
 subprocess.run(shlex.split(mksfoex_command))
 
@@ -238,7 +238,7 @@ if 'VPKS' not in u.get_folders('.'):
     os.mkdir('VPKS')
 
 pack_vpk_command = \
-    "vita-pack-vpk -s content/param.sfo -b content/eboot.bin \"VPKS/{}.vpk\"".format(game) + \
+    "vita-pack-vpk -s content/param.sfo -b content/eboot.bin VPKS/{}.vpk".format(shlex.quote(game)) + \
     " -a content/icon0.png=sce_sys/icon0.png" + \
     " -a content/startup.png=sce_sys/livearea/contents/startup.png" + \
     " -a content/bg.png=sce_sys/livearea/contents/bg.png" + \

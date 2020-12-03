@@ -54,6 +54,7 @@ For each ROM you want to create a custom Livearea Bubble for, you need 3 differe
 1. `icon0.png`, the Livearea icon itself
 2. `bg.png`, the game background once it's openned
 3. `startup.png`, the clickable image that launches the game  
+
 since `icon0.png` is the most important and visible on the Livearea, while `bg.png` and `startup.png` are less important and seen less, I've provided some example images in `examples/` you can use for your own ROMS.
 
 _A note about the size of the images: They will automatically get resized by the script, so the only thing you need to think about is their aspect ratios because they will get stretched a lot if they're not the correct ratio. `icon0.png` should be a square - for the rest, check `examples/`._
@@ -89,16 +90,17 @@ If we were to create a custom bubble for `Tetris` (apart of the `NES` system) th
 1. `Bubble Images/NES/Tetris/icon0.png` as it's icon
 2. `Bubble Images/NES/startup.png` as it's startup image, and
 3. `Bubble Images/bg.png` as it's background image.  
+
 On the other hand, if we created a custom bubble for `Super Mario Bros` it would have it's own unique icon and startup from the `Super Mario Bros` folder, but it would use the same background as all the other ROMS.
 
-Personally, all my ROMS have a unique `icon0.png` icon, every system has a unique `startup.png` and all bubbles have the same `bg.png` but of course this is entirely customizable to your liking.
+_Personally, all my ROMS have a unique `icon0.png` icon, every system has a unique `startup.png` and all bubbles have the same `bg.png` but of course this is entirely customizable to your liking and to the amount of time you're willing to spend searching Google Images for these cover arts._
 
 ### 2. Settings
 
 The script needs to be configured with a few more details before it can work correctly and automate a large process of the vpk file creation. An example `settings.yaml` file is provided in the `example/` folder and needs to be copied out of it to be detected. You need to go through each setting and configure it to your needs:
 
 `paths.images` - The path to the folder (relative to the script) containing all the systems, their games and the images that was described above.  
-`paths.vita.cores` - This is the path to where all your Retroarch cores are located on the PS Vita, which are by default just in `app0`. Note that "{core}" gets replaced with the system's core by the script.  
+`paths.vita.cores` - This is the path to where all your Retroarch cores are located on the PS Vita - if you're not sure, check the FAQ below for how to find this. Note that "{core}" gets replaced with the system's core you specify by the script.  
 `paths.vita.roms` - The path to where all your ROMS are on the PS Vita, sorted by system as previously described. "{system}" gets replaced with the chosen system and {filename} with the games filename.  
 `systems` - Here lay all your systems configuration which includes a name, which core it uses (This gets substituted into `paths.vita.cores`) and the format of its ROMS (So if I was creating a bubble for `Tetris` and and the NES's format was `{title}.nes`, the ROM filename should be `Tetris.nes`).
 
@@ -120,7 +122,10 @@ Now comes the hardest part, which is picking a Title ID. Each Livearea Bubble ne
 
 At this point, believe it or not, you're done! Because the script can piece together the path to the core on your Vita and the path to the ROM on your Vita + other things, All thats left for you to do is review the final parameters that the script will present you with and press enter. At this point the script generates the output .vpk file for you to transfer to your Vita via FTP or USB via VitaShell (or any other prefered method) and install the vpk.
 
-## Troubleshooting
+## FAQ
+
+**Q:** _Where do I find the cores?_  
+**A:** By default the cores are located in `ux0:app/RETROVITA/` and take the form of `{core}_libretro.self`, but note that `ux0:app/RETROVITA` is accessable to Retroarch is simply `app0` so by default your `paths.vita.cores` should be `app0:{core}_libretro.self`.
 
 **Q:** _A big error comes up when I start the script, something to do with a ParserError in settings.yaml?_  
 **A:** This means that the syntax of your `settings.yaml` file is incorrect. Check that the lines are indented correctly (check the example for reference). Watch out that a string can't begin with a curly bracket, and the system ROM formats tend to begin with one (e.g. `"{title}.nes"`), so these need to be wrapped in double quotes.
