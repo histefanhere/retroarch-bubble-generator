@@ -1,10 +1,12 @@
 # TODO:
 
-- Does this qualify for https://forums.libretro.com/t/one-game-bubbles-for-retroarch-on-playstation-vita-50-120/15316 ????????
+- Does this qualify for https://forums.libretro.com/t/one-game-bubbles-for-retroarch-on-playstation-vita-50-120/15316 (?)
 
-- GUI (oh boy.)
+- GUI (?)
 
-- CLI interface for picking a system and game without going through the interactive script?
+- allow assigning ID through arguments (?)
+
+- when asking if to use the same title ID, pressing enter should be yes and typing anything should be no / change
 
 # COMPLETED:
 - make all paths configurable in settings.yaml (and provide sane defaults)
@@ -22,7 +24,8 @@
 - provide example icon0.png
 - Screenshot of the Livearea bubbles in README
 - say in readme where to find cores
-- use `shlex.quote` as much as I can, but it seems to be using single quotes instead of double quotes?
+- use `shlex.quote` as much as I can, but it seems to be using single quotes instead of double quotes
+- CLI interface for picking a system and game without going through the interactive script
 
 # TRASHED:
 - Delete the core.txt and rom.txt files _=>_ all generation content is preserved in ./content/

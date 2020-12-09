@@ -1,7 +1,30 @@
-import yaml, os, subprocess, shlex, shutil
+import yaml, os, subprocess, shlex, shutil, sys, argparse
 from PIL import Image
 
 import utility as u
+
+
+####################
+# PART 0: SETTING UP
+####################
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument("-c", "--no-confirm", help="don't require any final confirmation", action="store_true")
+parser.add_argument("system", nargs="?", default=None, help="quoted console of desired ROM")
+parser.add_argument("rom", nargs="?", default=None, help="quoted ROM name")
+# I DON'T want to be able to supply a ROM ID from the command line
+# parser.add_argument("-i", "--id", help="title ID of the ROM")
+
+args = parser.parse_args()
+
+# If any command line parameter is set, then we're clearly using the command line
+cli = args.system or args.rom
+
+# If we're using the command line and both the system and ROM aren't set, then we're missing information
+if cli and not (args.system and args.rom):
+    sys.exit("Insufficient CLI arguments - provide both a system and a ROM.")
+
 
 # Read the settings
 with open('settings.yaml') as file:
@@ -10,7 +33,7 @@ with open('settings.yaml') as file:
 # The relative path to the folder with all the systems and their images from the python script
 # as configured in the settings
 images_path = settings['paths']['images']
-
+image_files = u.get_files(images_path)
 
 #######################
 # Part 1: PICK A SYSTEM
@@ -18,20 +41,27 @@ images_path = settings['paths']['images']
 
 systems_in_settings = settings['systems'].keys()
 systems_in_images = u.get_folders(images_path)
-
-# This is a variable we'll need MUCH later
-image_files = u.get_files(images_path)
-
-print(f"systems detected in settings: {', '.join(systems_in_settings)}")
-print(f"systems detected in images folder: {', '.join(systems_in_images)}")
-print(" ")
 systems = list(x for x in systems_in_settings if x in systems_in_images)
 
-system = u.choose(
-    systems,
-    title_message="Available systems",
-    input_message="Choose one of the above systems: "
-)
+if cli:
+    def validate_system(system):
+        return system in systems
+
+    system = args.system
+    
+    if not validate_system(system):
+        sys.exit("Invalid system argument, folder not found")
+
+else:
+    print(f"systems detected in settings: {', '.join(systems_in_settings)}")
+    print(f"systems detected in images folder: {', '.join(systems_in_images)}")
+    print(" ")
+
+    system = u.choose(
+        systems,
+        title_message="Available systems",
+        input_message="Choose one of the above systems: "
+    )
 
 system_name = settings['systems'][system]['name']
 system_core = settings['systems'][system]['core']
@@ -39,8 +69,9 @@ system_format = settings['systems'][system]['format']
 # This is a variable we'll need MUCH later
 system_path = u.get_path(images_path, system)
 
-print(f"Chosen \"{system_name}\" ({system}) using core \"{system_core}\"")
-input("(press enter to continue or Ctrl+C to cancel)\n")
+if not cli:
+    print(f"Chosen \"{system_name}\" ({system}) using core \"{system_core}\"")
+    input("(press enter to continue or Ctrl+C to cancel)\n")
 
 
 #####################
@@ -50,17 +81,28 @@ input("(press enter to continue or Ctrl+C to cancel)\n")
 system_files = u.get_files(system_path)
 games = u.get_folders(system_path)
 
-game = u.choose(
-    games,
-    title_message="Available games",
-    input_message="Choose one of the above games: "
-)
+if cli:
+    def validate_rom(rom):
+        return rom in games
+
+    game = args.rom
+
+    if not validate_rom(game):
+        sys.exit("Invaild ROM argument, folder not found")
+
+else:
+    game = u.choose(
+        games,
+        title_message="Available games",
+        input_message="Choose one of the above games: "
+    )
 
 game_path = u.get_path(system_path, game)
 game_files = u.get_files(game_path)
 
-print(f"Chosen \"{game}\"")
-input("(press enter to continue or Ctrl+C to cancel)\n")
+if not cli:
+    print(f"Chosen \"{game}\"")
+    input("(press enter to continue or Ctrl+C to cancel)\n")
 
 
 #####################
@@ -78,15 +120,14 @@ if 'icon0.png' in game_files:
     images['icon0'] = u.get_path(game_path, 'icon0.png')
 else:
     # Since icon0 is per-game, there's no where else this image can be.
-    print('ERROR: Sorry, that game folder doesn\'t contain an icon0.png!')
     
     # the `tbs=iar:s` query parameter here means that only square images are shown
     search = 'https://google.com/images?q={game}+{system}+cover+art&tbs=iar:s'.format(
         game="+".join(game.split()),
         system="+".join(system.split())
     )
-    print(f"Need inspiration? Try here: {search}")
-    exit()
+
+    sys.exit(f"That game folder doesn\'t contain an icon0.png!\nNeed inspiration? Try here: {search}")
 
 if 'startup.png' in game_files:
     images['startup'] = u.get_path(game_path, 'startup.png')
@@ -96,8 +137,7 @@ elif 'startup.png' in image_files:
     images['startup'] = u.get_path(images_path, 'startup.png')
 else:
     # Couldn't find startup ANYWHERE
-    print("ERROR: Failed to find startup.png file")
-    exit()
+    sys.exit("Failed to find startup.png image")
 
 if 'bg.png' in game_files:
     images['bg'] = u.get_path(game_path, 'bg.png')
@@ -107,8 +147,7 @@ elif 'bg.png' in image_files:
     images['bg'] = u.get_path(images_path, 'bg.png')
 else:
     # Couldn't find bg ANYWHERE
-    print("ERROR: Failed to find bg.png file")
-    exit()
+    sys.exit("Failed to find bg.png file")
 
 
 #######################
@@ -126,39 +165,46 @@ with open('title_ids.yaml') as file:
         title_ids = {}
 
 inv = {game: id for id, game in title_ids.items()}
-if game in inv:
-    print(f"Detected a previously title ID for this game: {inv[game]}")
-    choice = input("Do you wish to continue using this id for the game or create a new one? ('yes' for yes or anything else for no): ")
-
-    if len(choice) >= 1 and choice[0] == 'y':
-        new_id = False
+if cli:
+    # If we're in CLI mode then we HAVE to already have the title ID
+    # If not, they need to go through the interactive interface
+    if game in inv:
         title_id = inv[game]
     else:
-        new_id = True
+        sys.exit("Failed to find previous title ID for this ROM - please re-run the script with no arguments and go through the interactive menu to assign a title ID")
+
 else:
-    print("No previously generated title ID was detected")
-    new_id = True
+    # Script is being run interactively
+    if game in inv:
+        print(f"Detected a previously title ID for this game: {inv[game]}")
+        choice = input("Do you wish to continue using this id for the game or create a new one? ('yes' for yes or anything else for no): ")
 
-if new_id:
-    title_id = input("What title ID would you like for the game? (NOTE: only UPPERCASE letters or numbers, EXACTLY 9 characters long): ")
+        if len(choice) >= 1 and choice[0] == 'y':
+            new_id = False
+            title_id = inv[game]
+        else:
+            new_id = True
+    else:
+        print("No previously generated title ID was detected")
+        new_id = True
 
-    if title_id in title_ids.keys():
-        collision = title_ids[title_id]
-        print(f"ERROR: This title ID already exists in title_ids.yaml for the game {collision}")
-        exit()
+    if new_id:
+        title_id = input("What title ID would you like for the game? (NOTE: only UPPERCASE letters or numbers, EXACTLY 9 characters long): ")
+
+        if title_id in title_ids.keys():
+            collision = title_ids[title_id]
+            sys.exit(f"This title ID already exists in title_ids.yaml for the game {collision}!")
 
 # Check if the final title_id is valid
 if len(title_id) != 9:
-    print("ERROR: The provided title ID is invalid! It has to be exactly 9 characters.")
-    exit()
+    sys.exit("The provided title ID is invalid! It has to be exactly 9 characters.")
 
 def check_char(char):
     """ Given a single character from a title_id, this function checks if it's an uppercase letter or a number """
     return (ord(char) in range(ord('A'), ord('Z')+1)) or (ord(char) in range(ord('0'), ord('9')+1))
 valid_title_id = all(map(check_char, title_id))
 if not valid_title_id:
-    print("ERROR: The provided title ID is invalid! It can only contain UPPERCASE letters or numbers.")
-    exit()
+    sys.exit("The provided title ID is invalid! It can only contain UPPERCASE letters or numbers.")
 
 title_ids[title_id] = game
 with open('title_ids.yaml', 'w') as file:
@@ -173,8 +219,9 @@ vita_core_path = settings['paths']['vita']['cores'].format(core=system_core)
 rom_filename = system_format.format(title=game)
 vita_rom_path = settings['paths']['vita']['roms'].format(system=system, filename=rom_filename)
 
-print(" ")
-print("Here are all the final parameters:")
+if not (cli and args.no_confirm):
+    print(" ")
+    print("Here are all the final parameters:")
 
 print("vita_core_path = {}".format(vita_core_path))
 print("vita_rom_path  = {}".format(vita_rom_path))
@@ -184,8 +231,9 @@ print("startup        = {}".format(images['startup']))
 print("bg             = {}".format(images['bg']))
 print("output         = {}".format(f"VPKS/{game}.vpk"))
 
-print("Do you wish to proceed with generating the vpk file?")
-input("(press enter to continue or Ctrl+C to cancel)\n")
+if not (cli and args.no_confirm):
+    print("Do you wish to proceed with generating the vpk file?")
+    input("(press enter to continue or Ctrl+C to cancel)\n")
 
 
 ########################

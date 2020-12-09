@@ -122,7 +122,24 @@ Now comes the hardest part, which is picking a Title ID. Each Livearea Bubble ne
 
 At this point, believe it or not, you're done! Because the script can piece together the path to the core on your Vita and the path to the ROM on your Vita + other things, All thats left for you to do is review the final parameters that the script will present you with and press enter. At this point the script generates the output .vpk file for you to transfer to your Vita via FTP or USB via VitaShell (or any other prefered method) and install the vpk.
 
+### _Ew, I hate going through an interactive menu!_
+
+Do not fear because also provided is an argument-based interface for generating VPK files. For more information do
+```bash
+python3 main.py --help
+```
+But the basic usage is as follows:
+```bash
+# python3 main.py "system" "rom"
+python3 main.py "GBA" "Pokemon - Fire Red"
+```
+
+Note that you must have at least once already gone through the interactive menu and given the ROM an title ID. Also, the `system` and `rom` arguments **need to be quoted**.
+
 ## FAQ
+
+**Q:** _How do I choose a core?_  
+**A:** Through RetroArch, run your rom as per normal and try out which core works best for you, then find it's corresponding file before configuring this script.
 
 **Q:** _Where do I find the cores?_  
 **A:** By default the cores are located in `ux0:app/RETROVITA/` and take the form of `{core}_libretro.self`, but note that `ux0:app/RETROVITA` is accessable to Retroarch is simply `app0` so by default your `paths.vita.cores` should be `app0:{core}_libretro.self`.
