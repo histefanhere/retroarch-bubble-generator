@@ -2,7 +2,7 @@
 
 - Does this qualify for https://forums.libretro.com/t/one-game-bubbles-for-retroarch-on-playstation-vita-50-120/15316 (?)
 
-- GUI (?)
+- GUI, would replace the interactive aspect (?)
 
 - allow assigning ID through arguments (?)
 

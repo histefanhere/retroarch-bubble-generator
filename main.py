@@ -177,13 +177,13 @@ else:
     # Script is being run interactively
     if game in inv:
         print(f"Detected a previously title ID for this game: {inv[game]}")
-        choice = input("Do you wish to continue using this id for the game or create a new one? ('yes' for yes or anything else for no): ")
+        choice = input("Do you wish to change it and create a new one or continue using the same ID? ('change' to create a new ID or leave blank to use the same one): ")
 
-        if len(choice) >= 1 and choice[0] == 'y':
+        if len(choice) >= 1 and choice[0].lower() == 'c':
+            new_id = True
+        else:
             new_id = False
             title_id = inv[game]
-        else:
-            new_id = True
     else:
         print("No previously generated title ID was detected")
         new_id = True
