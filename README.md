@@ -1,5 +1,7 @@
 # retroarch-bubble-generator
 
+### UPDATE (PLEASE READ): I don't really plan on updating this any further, especially since there's a better alternative now: [DRok17's RetroBuilder](https://github.com/DRok17/RetroBuilder). Please use this project, which is a lot simpler and easier to use, over this. ty.
+
 Python script for (semi-automatically) generating custom PS Vita Livearea Bubbles for your Retroarch ROMS.
 
 ![Screenshot](https://imgur.com/TaLZ5Et.png)
